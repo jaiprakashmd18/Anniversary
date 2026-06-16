@@ -12,18 +12,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "framer-motion": "^11.0.0",
-    "three": "^0.168.0",
-    "@react-three/fiber": "^8.17.0",
-    "@react-three/drei": "^9.112.0",
+    "next": "15.5.19",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "framer-motion": "11.18.2",
+    "three": "0.168.0",
+    "@react-three/fiber": "8.18.0",
+    "@react-three/drei": "9.122.0",
     "clsx": "^2.1.0",
     "tailwind-merge": "^2.5.0",
     "lucide-react": "^0.460.0",
     "react-intersection-observer": "^9.13.0",
-    "react-countup": "^6.5.0"
+    "react-countup": "6.5.3"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
@@ -35,11 +35,11 @@
     "postcss": "^8.0.0",
     "autoprefixer": "^10.0.0",
     "eslint": "^8.0.0",
-    "eslint-config-next": "^15.0.0"
+    "eslint-config-next": "15.5.19"
   },
   "overrides": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "@types/react": "^19.0.0"
   }
 }

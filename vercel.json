@@ -1,6 +1,8 @@
 {
   "framework": "nextjs",
+  "installCommand": "npm install --legacy-peer-deps --no-audit",
   "buildCommand": "npm run build",
-  "installCommand": "npm install --legacy-peer-deps",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "cleanUrls": true,
+  "trailingSlash": false
 }
