@@ -76,12 +76,15 @@ function AnimatedHeart() {
 }
 
 function Timer() {
-  const [time, setTime] = useState(calculateTimeTogether(START_DATE));
+  const [time, setTime] = useState({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(calculateTimeTogether(START_DATE));
-    }, 1000);
+    const update = () => {
+      const t = calculateTimeTogether(START_DATE);
+      setTime({ years: t.years, months: t.months, days: t.days, hours: t.hours, minutes: t.minutes, seconds: t.seconds });
+    };
+    update();
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, []);
 

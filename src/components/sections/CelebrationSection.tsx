@@ -1,20 +1,21 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 
 interface FireworkParticleProps { x: number; y: number; color: string }
 
 function FireworkParticle({ x, y, color }: FireworkParticleProps) {
-  const particles = Array.from({ length: 12 }, (_, i) => {
+  const particles = useMemo(() => Array.from({ length: 12 }, (_, i) => {
     const angle = (i / 12) * Math.PI * 2;
     const distance = 60 + Math.random() * 80;
     return {
       dx: Math.cos(angle) * distance,
       dy: Math.sin(angle) * distance,
       size: 3 + Math.random() * 4,
+      duration: 0.8 + Math.random() * 0.4,
     };
-  });
+  }), []);
 
   return (
     <div className="absolute pointer-events-none" style={{ left: x, top: y }}>
@@ -35,7 +36,7 @@ function FireworkParticle({ x, y, color }: FireworkParticleProps) {
             opacity: 0,
             scale: [1, 0.5, 0],
           }}
-          transition={{ duration: 0.8 + Math.random() * 0.4, ease: "easeOut" }}
+          transition={{ duration: p.duration, ease: "easeOut" }}
         />
       ))}
     </div>
@@ -44,6 +45,8 @@ function FireworkParticle({ x, y, color }: FireworkParticleProps) {
 
 function FloatingHeart({ delay, startX, size }: { delay: number; startX: number; size: number }) {
   const [viewportHeight, setViewportHeight] = useState(800);
+  const [animX] = useState(() => (Math.random() - 0.5) * 200);
+  const [duration] = useState(() => 4 + Math.random() * 3);
 
   useEffect(() => {
     setViewportHeight(window.innerHeight);
@@ -59,12 +62,12 @@ function FloatingHeart({ delay, startX, size }: { delay: number; startX: number;
       }}
       animate={{
         y: [0, -(viewportHeight + 100)],
-        x: [0, (Math.random() - 0.5) * 200],
+        x: [0, animX],
         rotate: [0, 360],
         opacity: [0, 1, 1, 0],
       }}
       transition={{
-        duration: 4 + Math.random() * 3,
+        duration,
         delay,
         ease: "easeOut",
       }}
