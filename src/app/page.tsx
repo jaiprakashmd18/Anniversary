@@ -13,6 +13,7 @@ import StatsSection from "@/components/sections/StatsSection";
 import FutureDreamsSection from "@/components/sections/FutureDreamsSection";
 import CelebrationSection from "@/components/sections/CelebrationSection";
 import Footer from "@/components/layout/Footer";
+import { ErrorBoundary } from "@/components/effects/ErrorBoundary";
 
 // Lazy load Three.js section to avoid SSR issues
 const LoveUniverseSection = dynamic(
@@ -41,7 +42,9 @@ export default function Home() {
         <HeroSection />
         <LoveStorySection />
         <MemoryGallerySection />
-        <LoveUniverseSection />
+        <ErrorBoundary>
+          <LoveUniverseSection />
+        </ErrorBoundary>
         <LoveLetterSection />
         <StatsSection />
         <FutureDreamsSection />
