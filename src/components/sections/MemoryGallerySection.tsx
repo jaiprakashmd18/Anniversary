@@ -122,18 +122,24 @@ function GalleryCard({ memory, index }: { memory: typeof memories[0]; index: num
           }}
         />
 
-        {/* Decorative elements */}
+        {/* Decorative elements — fixed positions to avoid hydration mismatch */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(5)].map((_, i) => (
+          {[
+            { w: 60, h: 60, l: 10, t: 15 },
+            { w: 40, h: 40, l: 60, t: 5 },
+            { w: 70, h: 70, l: 30, t: 60 },
+            { w: 30, h: 30, l: 80, t: 50 },
+            { w: 50, h: 50, l: 5, t: 75 },
+          ].map((pos, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full opacity-20"
               style={{
-                width: 20 + Math.random() * 60,
-                height: 20 + Math.random() * 60,
+                width: pos.w,
+                height: pos.h,
                 background: memory.color,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${pos.l}%`,
+                top: `${pos.t}%`,
                 filter: "blur(15px)",
               }}
               animate={isHovered ? {
