@@ -1,7 +1,17 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
+
+interface Star {
+  id: number;
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  duration: number;
+  delay: number;
+}
 
 const dreams = [
   {
@@ -155,6 +165,21 @@ function DreamCard({ dream, index }: { dream: typeof dreams[0]; index: number })
 export default function FutureDreamsSection() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    setStars(
+      Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        width: Math.random() * 2 + 1,
+        height: Math.random() * 2 + 1,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 2 + Math.random() * 3,
+        delay: Math.random() * 5,
+      }))
+    );
+  }, []);
 
   return (
     <section id="dreams" className="relative py-24 md:py-32 overflow-hidden">
@@ -170,21 +195,21 @@ export default function FutureDreamsSection() {
 
       {/* Stars */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(40)].map((_, i) => (
+        {stars.map((star) => (
           <motion.div
-            key={i}
+            key={star.id}
             className="absolute rounded-full bg-white"
             style={{
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: star.width,
+              height: star.height,
+              left: `${star.left}%`,
+              top: `${star.top}%`,
             }}
             animate={{ opacity: [0.1, 0.8, 0.1] }}
             transition={{
-              duration: 2 + Math.random() * 3,
+              duration: star.duration,
               repeat: Infinity,
-              delay: Math.random() * 5,
+              delay: star.delay,
             }}
           />
         ))}

@@ -1,7 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+
+interface FloatingEmoji {
+  id: number;
+  left: number;
+  top: number;
+  duration: number;
+  delay: number;
+}
 
 const LETTER_TEXT = `Dear Meenu,
 
@@ -20,6 +28,19 @@ export default function LoveLetterSection() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [isOpen, setIsOpen] = useState(false);
+  const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
+
+  useEffect(() => {
+    setFloatingEmojis(
+      Array.from({ length: 12 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 6 + Math.random() * 4,
+        delay: Math.random() * 6,
+      }))
+    );
+  }, []);
 
   return (
     <section id="letter" className="relative py-24 md:py-32 overflow-hidden">
@@ -33,13 +54,13 @@ export default function LoveLetterSection() {
 
       {/* Floating hearts background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(12)].map((_, i) => (
+        {floatingEmojis.map((em) => (
           <motion.div
-            key={i}
+            key={em.id}
             className="absolute text-2xl md:text-3xl opacity-10"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${em.left}%`,
+              top: `${em.top}%`,
             }}
             animate={{
               y: [0, -60, 0],
@@ -47,9 +68,9 @@ export default function LoveLetterSection() {
               opacity: [0.05, 0.15, 0.05],
             }}
             transition={{
-              duration: 6 + Math.random() * 4,
+              duration: em.duration,
               repeat: Infinity,
-              delay: Math.random() * 6,
+              delay: em.delay,
             }}
           >
             ❤️

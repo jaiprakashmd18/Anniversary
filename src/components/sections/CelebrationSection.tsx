@@ -3,7 +3,9 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
 
-function FireworkParticle({ x, y, color }: { x: number; y: number; color: string }) {
+interface FireworkParticleProps { x: number; y: number; color: string }
+
+function FireworkParticle({ x, y, color }: FireworkParticleProps) {
   const particles = Array.from({ length: 12 }, (_, i) => {
     const angle = (i / 12) * Math.PI * 2;
     const distance = 60 + Math.random() * 80;
@@ -40,22 +42,25 @@ function FireworkParticle({ x, y, color }: { x: number; y: number; color: string
   );
 }
 
-function FloatingHeart({ delay }: { delay: number }) {
-  const startX = Math.random() * 100;
-  const size = 20 + Math.random() * 30;
+function FloatingHeart({ delay, startX, size }: { delay: number; startX: number; size: number }) {
+  const [viewportHeight, setViewportHeight] = useState(800);
+
+  useEffect(() => {
+    setViewportHeight(window.innerHeight);
+  }, []);
 
   return (
     <motion.div
-      className="absolute"
+      className="absolute pointer-events-none"
       style={{
         left: `${startX}%`,
         bottom: "-50px",
         fontSize: size,
       }}
       animate={{
-        y: [0, -window.innerHeight - 100],
+        y: [0, -(viewportHeight + 100)],
         x: [0, (Math.random() - 0.5) * 200],
-        rotate: [0, Math.random() * 360],
+        rotate: [0, 360],
         opacity: [0, 1, 1, 0],
       }}
       transition={{
@@ -69,48 +74,81 @@ function FloatingHeart({ delay }: { delay: number }) {
   );
 }
 
+interface ConfettiPiece {
+  id: number;
+  left: number;
+  size: number;
+  color: string;
+  shape: "circle" | "square" | "triangle";
+  dx: number;
+  rotate: number;
+  duration: number;
+  delay: number;
+}
+
 function Confetti() {
   const colors = ["#FF4D6D", "#FF758F", "#FFD6E0", "#C084FC", "#60A5FA", "#34D399", "#FBBF24"];
-  const shapes = ["circle", "square", "triangle"];
+  const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
+  const [viewportHeight, setViewportHeight] = useState(800);
+
+  useEffect(() => {
+    setViewportHeight(window.innerHeight);
+    const shapes: ConfettiPiece["shape"][] = ["circle", "square", "triangle"];
+    setPieces(
+      Array.from({ length: 60 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        size: 6 + Math.random() * 10,
+        color: colors[i % colors.length],
+        shape: shapes[i % shapes.length],
+        dx: (Math.random() - 0.5) * 200,
+        rotate: Math.random() * 720 * (Math.random() > 0.5 ? 1 : -1),
+        duration: 3 + Math.random() * 4,
+        delay: Math.random() * 2,
+      }))
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(60)].map((_, i) => {
-        const color = colors[i % colors.length];
-        const shape = shapes[i % shapes.length];
-        const size = 6 + Math.random() * 10;
-
-        return (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: "-20px",
-              width: size,
-              height: size,
-              background: shape === "triangle" ? "transparent" : color,
-              borderRadius: shape === "circle" ? "50%" : "2px",
-              borderLeft: shape === "triangle" ? `${size / 2}px solid transparent` : "none",
-              borderRight: shape === "triangle" ? `${size / 2}px solid transparent` : "none",
-              borderBottom: shape === "triangle" ? `${size}px solid ${color}` : "none",
-            }}
-            animate={{
-              y: [0, window.innerHeight + 100],
-              x: [(Math.random() - 0.5) * 200],
-              rotate: [0, Math.random() * 720 * (Math.random() > 0.5 ? 1 : -1)],
-              opacity: [0, 1, 1, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 4,
-              delay: Math.random() * 2,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
-          />
-        );
-      })}
+      {pieces.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute"
+          style={{
+            left: `${p.left}%`,
+            top: "-20px",
+            width: p.size,
+            height: p.size,
+            background: p.shape === "triangle" ? "transparent" : p.color,
+            borderRadius: p.shape === "circle" ? "50%" : "2px",
+            borderLeft: p.shape === "triangle" ? `${p.size / 2}px solid transparent` : "none",
+            borderRight: p.shape === "triangle" ? `${p.size / 2}px solid transparent` : "none",
+            borderBottom: p.shape === "triangle" ? `${p.size}px solid ${p.color}` : "none",
+          }}
+          animate={{
+            y: [0, viewportHeight + 100],
+            x: [p.dx],
+            rotate: [0, p.rotate],
+            opacity: [0, 1, 1, 0],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
+        />
+      ))}
     </div>
   );
+}
+
+interface HeartConfig {
+  id: number;
+  startX: number;
+  size: number;
+  delay: number;
 }
 
 export default function CelebrationSection() {
@@ -118,30 +156,36 @@ export default function CelebrationSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [fireworks, setFireworks] = useState<{ id: number; x: number; y: number; color: string }[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [showHearts, setShowHearts] = useState(false);
+  const [hearts, setHearts] = useState<HeartConfig[]>([]);
   const fireworkCount = useRef(0);
 
   useEffect(() => {
     if (!isInView) return;
 
     setShowConfetti(true);
-    setShowHearts(true);
+    setHearts(
+      Array.from({ length: 15 }, (_, i) => ({
+        id: i,
+        startX: Math.random() * 100,
+        size: 20 + Math.random() * 30,
+        delay: i * 0.3,
+      }))
+    );
 
     const launchFirework = () => {
       const colors = ["#FF4D6D", "#FF758F", "#FFD6E0", "#C084FC", "#60A5FA", "#FBBF24"];
+      const container = ref.current;
       const newFirework = {
         id: fireworkCount.current++,
-        x: Math.random() * (ref.current?.offsetWidth || 800),
-        y: Math.random() * (ref.current?.offsetHeight || 400) * 0.7,
+        x: Math.random() * (container?.offsetWidth ?? 800),
+        y: Math.random() * (container?.offsetHeight ?? 400) * 0.7,
         color: colors[Math.floor(Math.random() * colors.length)],
       };
-
       setFireworks((prev) => [...prev.slice(-20), newFirework]);
     };
 
     const interval = setInterval(launchFirework, 300);
     setTimeout(() => clearInterval(interval), 5000);
-
     return () => clearInterval(interval);
   }, [isInView]);
 
@@ -160,25 +204,21 @@ export default function CelebrationSection() {
     >
       <div className="absolute inset-0 aurora-bg" />
 
-      {/* Fireworks */}
-      {isInView && fireworks.map((fw) => (
+      {fireworks.map((fw) => (
         <FireworkParticle key={fw.id} x={fw.x} y={fw.y} color={fw.color} />
       ))}
 
-      {/* Confetti */}
       {isInView && showConfetti && <Confetti />}
 
-      {/* Floating hearts */}
-      {isInView && showHearts && (
+      {isInView && hearts.length > 0 && (
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(15)].map((_, i) => (
-            <FloatingHeart key={i} delay={i * 0.3} />
+          {hearts.map((h) => (
+            <FloatingHeart key={h.id} delay={h.delay} startX={h.startX} size={h.size} />
           ))}
         </div>
       )}
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 text-center w-full">
-        {/* Section tag */}
         <motion.div
           className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-xs text-white/50 tracking-[0.2em] uppercase"
           initial={{ opacity: 0, y: -20 }}
@@ -190,7 +230,6 @@ export default function CelebrationSection() {
           <span className="text-primary">✦</span>
         </motion.div>
 
-        {/* Main celebration */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
@@ -233,7 +272,6 @@ export default function CelebrationSection() {
           </motion.p>
         </motion.div>
 
-        {/* Animated wishes */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {wishes.map((wish, i) => (
             <motion.div
@@ -256,7 +294,6 @@ export default function CelebrationSection() {
           ))}
         </div>
 
-        {/* Special message */}
         <motion.div
           className="glass rounded-3xl p-8 md:p-10 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 40 }}
@@ -276,13 +313,12 @@ export default function CelebrationSection() {
           <div className="flex items-center justify-center gap-3">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary/40" />
             <span className="text-primary text-sm tracking-widest uppercase font-medium">
-              Forever & Always
+              Forever &amp; Always
             </span>
             <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary/40" />
           </div>
         </motion.div>
 
-        {/* Sparkle decorations */}
         {[...Array(6)].map((_, i) => (
           <motion.div
             key={i}

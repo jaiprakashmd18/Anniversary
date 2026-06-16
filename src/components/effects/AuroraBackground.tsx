@@ -1,8 +1,37 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
+interface Star {
+  id: number;
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  duration: number;
+  delay: number;
+}
+
+function generateStars(count: number): Star[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    width: Math.random() * 2 + 1,
+    height: Math.random() * 2 + 1,
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    duration: 2 + Math.random() * 4,
+    delay: Math.random() * 5,
+  }));
+}
+
 export default function AuroraBackground() {
+  const [stars, setStars] = useState<Star[]>([]);
+
+  useEffect(() => {
+    setStars(generateStars(80));
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Aurora orbs */}
@@ -58,26 +87,25 @@ export default function AuroraBackground() {
         }}
       />
 
-      {/* Stars */}
-      {[...Array(80)].map((_, i) => (
+      {/* Stars — rendered client-side only to avoid hydration mismatch */}
+      {stars.map((star) => (
         <motion.div
-          key={i}
-          className="absolute rounded-full"
+          key={star.id}
+          className="absolute rounded-full bg-white"
           style={{
-            width: Math.random() * 2 + 1,
-            height: Math.random() * 2 + 1,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: "white",
+            width: star.width,
+            height: star.height,
+            left: `${star.left}%`,
+            top: `${star.top}%`,
           }}
           animate={{
             opacity: [0.2, 1, 0.2],
             scale: [0.8, 1.2, 0.8],
           }}
           transition={{
-            duration: 2 + Math.random() * 4,
+            duration: star.duration,
             repeat: Infinity,
-            delay: Math.random() * 5,
+            delay: star.delay,
           }}
         />
       ))}

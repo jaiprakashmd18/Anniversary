@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 interface Particle {
@@ -11,19 +12,16 @@ interface Particle {
   duration: number;
   delay: number;
   type: "circle" | "heart" | "star";
+  dxMid: number;
+  dxEnd: number;
+  rotateTo: number;
 }
 
 const HEART_PATH = "M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z";
 
 function HeartIcon({ size }: { size: number }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="currentColor"
-      style={{ overflow: "visible" }}
-    >
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" style={{ overflow: "visible" }}>
       <path d={HEART_PATH} />
     </svg>
   );
@@ -37,14 +35,14 @@ function StarIcon({ size }: { size: number }) {
   );
 }
 
-const generateParticles = (count: number): Particle[] => {
+function generateParticles(count: number): Particle[] {
   const colors = [
     "rgba(255, 77, 109, 0.8)",
     "rgba(255, 117, 143, 0.6)",
     "rgba(255, 214, 224, 0.7)",
     "rgba(255, 255, 255, 0.4)",
   ];
-  const types: ("circle" | "heart" | "star")[] = ["circle", "heart", "star"];
+  const types: Particle["type"][] = ["circle", "heart", "star"];
 
   return Array.from({ length: count }, (_, i) => ({
     id: i,
@@ -55,8 +53,11 @@ const generateParticles = (count: number): Particle[] => {
     duration: 8 + Math.random() * 12,
     delay: Math.random() * 10,
     type: types[Math.floor(Math.random() * types.length)],
+    dxMid: Math.random() * 40 - 20,
+    dxEnd: Math.random() * 40 - 20,
+    rotateTo: Math.random() * 360,
   }));
-};
+}
 
 interface FloatingParticlesProps {
   count?: number;
@@ -64,7 +65,11 @@ interface FloatingParticlesProps {
 }
 
 export default function FloatingParticles({ count = 30, className = "" }: FloatingParticlesProps) {
-  const particles = generateParticles(count);
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    setParticles(generateParticles(count));
+  }, [count]);
 
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
@@ -79,10 +84,10 @@ export default function FloatingParticles({ count = 30, className = "" }: Floati
           }}
           animate={{
             y: [0, -80, -160, -240],
-            x: [0, Math.random() * 40 - 20, Math.random() * 40 - 20, 0],
+            x: [0, particle.dxMid, particle.dxEnd, 0],
             opacity: [0, 1, 1, 0],
             scale: [0, 1, 1, 0.5],
-            rotate: [0, Math.random() * 360],
+            rotate: [0, particle.rotateTo],
           }}
           transition={{
             duration: particle.duration,

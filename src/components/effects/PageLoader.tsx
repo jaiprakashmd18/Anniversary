@@ -3,11 +3,31 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
+interface LoaderParticle {
+  id: number;
+  left: number;
+  top: number;
+  duration: number;
+  delay: number;
+}
+
 export default function PageLoader() {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [particles, setParticles] = useState<LoaderParticle[]>([]);
 
   useEffect(() => {
+    // Generate random particles client-side only
+    setParticles(
+      Array.from({ length: 20 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 2 + Math.random() * 2,
+        delay: Math.random() * 2,
+      }))
+    );
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -32,13 +52,13 @@ export default function PageLoader() {
         >
           {/* Background particles */}
           <div className="absolute inset-0 overflow-hidden">
-            {[...Array(20)].map((_, i) => (
+            {particles.map((p) => (
               <motion.div
-                key={i}
+                key={p.id}
                 className="absolute w-1 h-1 rounded-full bg-primary/40"
                 style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
+                  left: `${p.left}%`,
+                  top: `${p.top}%`,
                 }}
                 animate={{
                   y: [0, -30, 0],
@@ -46,9 +66,9 @@ export default function PageLoader() {
                   scale: [0, 1, 0],
                 }}
                 transition={{
-                  duration: 2 + Math.random() * 2,
+                  duration: p.duration,
                   repeat: Infinity,
-                  delay: Math.random() * 2,
+                  delay: p.delay,
                 }}
               />
             ))}
@@ -57,14 +77,8 @@ export default function PageLoader() {
           {/* Heart animation */}
           <motion.div
             className="relative mb-8"
-            animate={{
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           >
             <svg
               viewBox="0 0 100 100"
